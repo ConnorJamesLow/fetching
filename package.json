@@ -1,5 +1,5 @@
 {
-    "name": "tyson",
+    "name": "fetching",
     "version": "0.1.0",
     "typings": "dist/index",
     "description": "Strongly-typed REST API client for web apps.",
@@ -12,7 +12,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/ConnorJamesLow/tyson.git"
+        "url": "https://github.com/ConnorJamesLow/fetching.git"
     },
     "keywords": [
         "typescript",
@@ -24,6 +24,11 @@
         "dist/**"
     ],
     "dependencies": {
-        "typescript": "^3.8.3"
+        "@types/node-fetch": "^2.5.5",
+        "typescript": "^3.8.3",
+        "unfetch": "^4.1.0"
+    },
+    "devDependencies": {
+        "node-fetch": "^2.6.0"
     }
 }
