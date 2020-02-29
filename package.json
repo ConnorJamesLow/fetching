@@ -1,13 +1,14 @@
 {
     "name": "tyson",
     "version": "0.1.0",
-    "typings": "./lib/",
+    "typings": "dist/index",
     "description": "Strongly-typed REST API client for web apps.",
-    "main": "index.js",
+    "main": "dist/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "npx tsc --watch",
-        "build": "npx tsc"
+        "build": "npx tsc",
+        "prepublish": "npx tsc"
     },
     "repository": {
         "type": "git",
@@ -19,6 +20,9 @@
     ],
     "author": "",
     "license": "MIT",
+    "files": [
+        "dist/**"
+    ],
     "dependencies": {
         "typescript": "^3.8.3"
     }
