@@ -1,3 +1,5 @@
+import fetch from 'unfetch'
+
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
 export type RequestBody = string | Blob | ArrayBufferView | ArrayBuffer | FormData | URLSearchParams | ReadableStream<Uint8Array> | null | undefined;
 export type RequestInitializerFactory = <T>(body?: T) => Promise<RequestInit>;

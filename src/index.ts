@@ -12,19 +12,19 @@ const createEndpoint = <T>(rootURL: string, init: RequestInitializerFactory, mid
         },
         create: {
             get:
-                <TR, TB extends T>(options?: RequestInit) => (query: TR) => sendRequest<TR, TB>(rootURL, 'GET', query, options),
+                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (query: TR) => sendRequest<TR, TB>(url, 'GET', query, options),
             pathedGet:
-                <TR, TB extends T>(options?: RequestInit) => (id: number | string) => sendRequest<TR, TB>(`${rootURL}/${id}`, 'GET', undefined, options),
+                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (id: number | string) => sendRequest<TR, TB>(`${url}/${id}`, 'GET', undefined, options),
             delete:
-                <TR, TB extends T>(options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(rootURL, 'GET', body, options),
+                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(url, 'GET', body, options),
             pathedDelete:
-                <TR, TB extends T>(options?: RequestInit) => (id: number | string, body?: TR) => sendRequest<TR, TB>(`${rootURL}/${id}`, 'DELETE', body, options),
+                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (id: number | string, body?: TR) => sendRequest<TR, TB>(`${url}/${id}`, 'DELETE', body, options),
             post:
-                <TR, TB extends T>(options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(rootURL, 'POST', body, options),
+                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(url, 'POST', body, options),
             put:
-                <TR, TB extends T>(options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(rootURL, 'PUT', body, options),
+                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(url, 'PUT', body, options),
             patch:
-                <TR, TB extends T>(options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(rootURL, 'PATCH', body, options),
+                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(url, 'PATCH', body, options),
         }
     }
     init().then(r => result.config.init = r);
