@@ -28,7 +28,6 @@ const createEndpoint = <T>(rootURL: string, init: RequestInitializerFactory, mid
         }
     }
     init().then(r => result.config.init = r);
-    init().then(r => result.config.init = r);
     return result;
 }
 
