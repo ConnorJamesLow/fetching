@@ -4,7 +4,12 @@ import createFactory, { RequestInitializerFactory, ResponseMiddleware } from './
 
 const createEndpoint = <T>(rootURL: string, init: RequestInitializerFactory, middleware: ResponseMiddleware<T>) => {
     const sendRequest = createFactory(rootURL, init, middleware);
-    return {
+    const result = {
+        config: {
+            rootURL,
+            middleware,
+            init: {}
+        },
         create: {
             get:
                 <TR, TB extends T>(options?: RequestInit) => (query: TR) => sendRequest<TR, TB>(rootURL, 'GET', query, options),
@@ -22,6 +27,9 @@ const createEndpoint = <T>(rootURL: string, init: RequestInitializerFactory, mid
                 <TR, TB extends T>(options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(rootURL, 'PATCH', body, options),
         }
     }
+    init().then(r => result.config.init = r);
+    init().then(r => result.config.init = r);
+    return result;
 }
 
 export default createEndpoint;
