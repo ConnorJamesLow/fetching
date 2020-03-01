@@ -2,8 +2,8 @@ export * from './client';
 export { default as tysonClientFactory } from './client'
 import createFactory, { RequestInitializerFactory, ResponseMiddleware } from './client';
 
-const createEndpoint = <T>(rootURL: string, init: RequestInitializerFactory, middleware: ResponseMiddleware<T>) => {
-    const sendRequest = createFactory(rootURL, init, middleware);
+const createEndpoint = <T = Response>(rootURL: string, init: RequestInitializerFactory, middleware: ResponseMiddleware<T>) => {
+    const { requestWithQuery, requestWithBody, request } = createFactory(rootURL, init, middleware);
     const result = {
         config: {
             rootURL,
@@ -12,19 +12,15 @@ const createEndpoint = <T>(rootURL: string, init: RequestInitializerFactory, mid
         },
         create: {
             get:
-                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (query: TR) => sendRequest<TR, TB>(url, 'GET', query, options),
-            pathedGet:
-                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (id: number | string) => sendRequest<TR, TB>(`${url}/${id}`, 'GET', undefined, options),
+                <TR, TB extends T | T[] = T>(url?: RequestInfo, options?: RequestInit) => (query: TR, path?: number | string) => requestWithQuery<TR, TB>(`${url || ''}/${path || ''}`, 'GET', query, options),
             delete:
-                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(url, 'GET', body, options),
-            pathedDelete:
-                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (id: number | string, body?: TR) => sendRequest<TR, TB>(`${url}/${id}`, 'DELETE', body, options),
+                <TR, TB extends T | T[] = T>(url?: RequestInfo, options?: RequestInit) => (body: TR, path?: number | string) => requestWithQuery<TR, TB>(`${url || ''}/${path || ''}`, 'GET', body, options),
             post:
-                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(url, 'POST', body, options),
+                <TR extends T | T[] = T, TB = Response>(url?: RequestInfo, options?: RequestInit) => (body: TR, path?: number | string) => requestWithBody<TR, TB>(`${url || ''}/${path || ''}`, 'POST', body, options),
             put:
-                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(url, 'PUT', body, options),
+                <TR extends T | T[] = T, TB = Response>(url?: RequestInfo, options?: RequestInit) => (body: TR, path?: number | string) => requestWithBody<TR, TB>(`${url || ''}/${path || ''}`, 'PUT', body, options),
             patch:
-                <TR, TB extends T>(url: RequestInfo, options?: RequestInit) => (body: TR) => sendRequest<TR, TB>(url, 'PATCH', body, options),
+                <TR = any, TB = any>(url?: RequestInfo, options?: RequestInit) => (body: TR, path?: number | string) => request<TR, TB>(`${url || ''}/${path || ''}`, 'PATCH', body, options),
         }
     }
     init().then(r => result.config.init = r);
