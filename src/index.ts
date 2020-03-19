@@ -12,15 +12,15 @@ const createEndpoint = <T = Response>(rootURL: string, init: RequestInitializerF
         },
         create: {
             get:
-                <TR, TB extends T | T[] = T>(url?: RequestInfo, options?: RequestInit) => (query: TR, path?: number | string) => requestWithQuery<TR, TB>(`${url || ''}/${path || ''}`, 'GET', query, options),
+                <TRes, TReq extends T | T[] = T>(url?: RequestInfo, options?: RequestInit) => (query: TRes, path?: number | string) => requestWithQuery<TRes, TReq>(`${url || ''}/${path || ''}`, 'GET', query, options),
             delete:
-                <TR, TB extends T | T[] = T>(url?: RequestInfo, options?: RequestInit) => (body: TR, path?: number | string) => requestWithQuery<TR, TB>(`${url || ''}/${path || ''}`, 'GET', body, options),
+                <TRes, TReq extends T | T[] = T>(url?: RequestInfo, options?: RequestInit) => (path?: number | string) => request<TRes, TReq>(`${url || ''}/${path || ''}`, 'DELETE', undefined, options),
             post:
-                <TR extends T | T[] = T, TB = Response>(url?: RequestInfo, options?: RequestInit) => (body: TR, path?: number | string) => requestWithBody<TR, TB>(`${url || ''}/${path || ''}`, 'POST', body, options),
+                <TReq extends T | T[] = T, TRes = Response>(url?: RequestInfo, options?: RequestInit) => (body: TReq, path?: number | string) => requestWithBody<TReq, TRes>(`${url || ''}/${path || ''}`, 'POST', body, options),
             put:
-                <TR extends T | T[] = T, TB = Response>(url?: RequestInfo, options?: RequestInit) => (body: TR, path?: number | string) => requestWithBody<TR, TB>(`${url || ''}/${path || ''}`, 'PUT', body, options),
+                <TReq extends T | T[] = T, TRes = Response>(url?: RequestInfo, options?: RequestInit) => (body: TReq, path?: number | string) => requestWithBody<TReq, TRes>(`${url || ''}/${path || ''}`, 'PUT', body, options),
             patch:
-                <TR = any, TB = any>(url?: RequestInfo, options?: RequestInit) => (body: TR, path?: number | string) => request<TR, TB>(`${url || ''}/${path || ''}`, 'PATCH', body, options),
+                <TReq = any, TRes = any>(url?: RequestInfo, options?: RequestInit) => (body: TReq, path?: number | string) => request<TReq, TRes>(`${url || ''}/${path || ''}`, 'PATCH', body, options),
         }
     }
     init().then(r => result.config.init = r);

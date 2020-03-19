@@ -35,7 +35,7 @@ const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitial
     return {
         async requestWithQuery<TB extends RequestBodyOrPOJSO = any, TR extends T | T[] = T>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> {
             const computedOptions = methodShouldUseBody(method) ? await i(payload) : await i();
-            const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? payload : {}).href;
+            const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
             const requestInit: RequestInit = {
                 ...computedOptions,
                 ...options,
@@ -50,7 +50,7 @@ const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitial
         },
         async requestWithBody<TB extends T | T[] = any, TR = any>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> {
             const computedOptions = methodShouldUseBody(method) ? await i(payload) : await i();
-            const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? payload : {}).href;
+            const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
             const requestInit: RequestInit = {
                 ...computedOptions,
                 ...options,
@@ -65,7 +65,7 @@ const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitial
         },
         async request<TB = any, TR = any>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> {
             const computedOptions = methodShouldUseBody(method) ? await i(payload) : await i();
-            const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? payload : {}).href;
+            const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
             const requestInit: RequestInit = {
                 ...computedOptions,
                 ...options,
