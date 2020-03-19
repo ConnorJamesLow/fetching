@@ -1,6 +1,6 @@
 {
     "name": "@fetching/core",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "typings": "dist/index",
     "description": "Strongly-typed REST API client for web apps.",
     "main": "dist/index.js",
