@@ -46,7 +46,7 @@ interface TreeInfo extends Tree {
 };
 
 // Create an endpoint schema
-const endpoint = createEndpoint<Tree>(
+const endpoint = createEndpoint<Tree | Tree[]>(
     // Define the root url for the endpoint
     'https://api.example.com/trees',
 
