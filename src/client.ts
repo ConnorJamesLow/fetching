@@ -31,11 +31,13 @@ const createUrl = <T extends any = any>(ri: RequestInfo[], query?: T) => {
  */
 const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitializerFactory, middleware?: ResponseMiddleware<T>) => {
     const r = rootURL || '';
-    const i = init || ( async <T>(body?: T): Promise<RequestInit> => ({ body: `${body}` }));
+    const i = init || (async <T>(body?: T): Promise<RequestInit> => ({ body: `${body}` }));
     const m = middleware || (async (res: Response) => res) as any;
     return {
         async requestWithQuery<TReq extends RequestBodyOrPOJSO = any, TRes extends T | T[] = T>(url: RequestInfo, method: HttpMethod, payload?: TReq, options?: RequestInit): Promise<TRes> {
-            const computedOptions = methodShouldUseBody(method) ? await i(url, payload) : await i();
+            const computedOptions = methodShouldUseBody(method)
+                ? await i(url, payload)
+                : await i(url);
             const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
             const requestInit: RequestInit = {
                 ...computedOptions,
@@ -50,7 +52,9 @@ const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitial
             return await m(result);
         },
         async requestWithBody<TB extends T | T[] = any, TR = any>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> {
-            const computedOptions = methodShouldUseBody(method) ? await i(url, payload) : await i();
+            const computedOptions = methodShouldUseBody(method)
+                ? await i(url, payload)
+                : await i(url);
             const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
             const requestInit: RequestInit = {
                 ...computedOptions,
@@ -65,7 +69,9 @@ const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitial
             return await m(result);
         },
         async request<TB = any, TR = any>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> {
-            const computedOptions = methodShouldUseBody(method) ? await i(url, payload) : await i();
+            const computedOptions = methodShouldUseBody(method)
+                ? await i(url, payload)
+                : await i(url);
             const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
             const requestInit: RequestInit = {
                 ...computedOptions,
