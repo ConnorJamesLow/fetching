@@ -34,7 +34,7 @@ const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitial
     const i = init || ( async <T>(body?: T): Promise<RequestInit> => ({ body: `${body}` }));
     const m = middleware || (async (res: Response) => res) as any;
     return {
-        async requestWithQuery<TB extends RequestBodyOrPOJSO = any, TR extends T | T[] = T>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> {
+        async requestWithQuery<TReq extends RequestBodyOrPOJSO = any, TRes extends T | T[] = T>(url: RequestInfo, method: HttpMethod, payload?: TReq, options?: RequestInit): Promise<TRes> {
             const computedOptions = methodShouldUseBody(method) ? await i(url, payload) : await i();
             const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
             const requestInit: RequestInit = {
