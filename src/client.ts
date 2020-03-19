@@ -2,7 +2,7 @@ import fetch from 'unfetch'
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
 export type RequestBody = string | Blob | ArrayBufferView | ArrayBuffer | FormData | URLSearchParams | ReadableStream<Uint8Array> | null | undefined;
-export type RequestInitializerFactory = <T>(body?: T) => Promise<RequestInit>;
+export type RequestInitializerFactory = <T>(url?: RequestInfo, body?: T) => Promise<RequestInit>;
 export type ResponseMiddleware<T> = (res: Response) => Promise<T>;
 export type RequestBodyOrPOJSO = ({} | RequestBody);
 export type Query<T> = { [key in (keyof T)]: any };
@@ -31,11 +31,11 @@ const createUrl = <T extends any = any>(ri: RequestInfo[], query?: T) => {
  */
 const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitializerFactory, middleware?: ResponseMiddleware<T>) => {
     const r = rootURL || '';
-    const i = init || (async <T>(body?: T): Promise<RequestInit> => ({ body: `${body}` }));
+    const i = init || ( async <T>(body?: T): Promise<RequestInit> => ({ body: `${body}` }));
     const m = middleware || (async (res: Response) => res) as any;
     return {
         async requestWithQuery<TB extends RequestBodyOrPOJSO = any, TR extends T | T[] = T>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> {
-            const computedOptions = methodShouldUseBody(method) ? await i(payload) : await i();
+            const computedOptions = methodShouldUseBody(method) ? await i(url, payload) : await i();
             const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
             const requestInit: RequestInit = {
                 ...computedOptions,
@@ -50,7 +50,7 @@ const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitial
             return await m(result);
         },
         async requestWithBody<TB extends T | T[] = any, TR = any>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> {
-            const computedOptions = methodShouldUseBody(method) ? await i(payload) : await i();
+            const computedOptions = methodShouldUseBody(method) ? await i(url, payload) : await i();
             const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
             const requestInit: RequestInit = {
                 ...computedOptions,
@@ -65,7 +65,7 @@ const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitial
             return await m(result);
         },
         async request<TB = any, TR = any>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> {
-            const computedOptions = methodShouldUseBody(method) ? await i(payload) : await i();
+            const computedOptions = methodShouldUseBody(method) ? await i(url, payload) : await i();
             const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
             const requestInit: RequestInit = {
                 ...computedOptions,

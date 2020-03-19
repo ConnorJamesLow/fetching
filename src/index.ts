@@ -12,9 +12,9 @@ const createEndpoint = <T = Response>(rootURL: string, init: RequestInitializerF
         },
         create: {
             get:
-                <TRes, TReq extends T = T>(url?: RequestInfo, options?: RequestInit) => (query: TRes, path?: number | string) => requestWithQuery<TRes, TReq>(`${url || ''}/${path || ''}`, 'GET', query, options),
+                <TReq extends T = T, TRes = Response>(url?: RequestInfo, options?: RequestInit) => (query: TRes, path?: number | string) => requestWithQuery<TRes, TReq>(`${url || ''}/${path || ''}`, 'GET', query, options),
             delete:
-                <TRes, TReq extends T = T>(url?: RequestInfo, options?: RequestInit) => (path?: number | string) => request<TRes, TReq>(`${url || ''}/${path || ''}`, 'DELETE', undefined, options),
+                <TReq extends T = T, TRes = Response>(url?: RequestInfo, options?: RequestInit) => (path?: number | string) => request<TRes, TReq>(`${url || ''}/${path || ''}`, 'DELETE', undefined, options),
             post:
                 <TReq extends T = T, TRes = Response>(url?: RequestInfo, options?: RequestInit) => (body: TReq, path?: number | string) => requestWithBody<TReq, TRes>(`${url || ''}/${path || ''}`, 'POST', body, options),
             put:
