@@ -5,6 +5,7 @@ export type RequestBody = string | Blob | ArrayBufferView | ArrayBuffer | FormDa
 export type RequestInitializerFactory = <T>(body?: T) => Promise<RequestInit>;
 export type ResponseMiddleware<T> = (res: Response) => Promise<T>;
 export type RequestBodyOrPOJSO = ({} | RequestBody);
+export type Query<T> = { [key in (keyof T)]: any };
 
 const methodShouldUseBody = (verb: HttpMethod) => verb === 'POST'
     || verb === 'PUT'
