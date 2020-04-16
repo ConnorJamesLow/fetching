@@ -1,12 +1,5 @@
 import fetch from 'unfetch'
 
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
-export type RequestBody = string | Blob | ArrayBufferView | ArrayBuffer | FormData | URLSearchParams | ReadableStream<Uint8Array> | null | undefined;
-export type RequestInitializerFactory = <T>(url?: RequestInfo, body?: T) => Promise<RequestInit>;
-export type ResponseMiddleware<T> = (res: Response) => Promise<T>;
-export type RequestBodyOrPOJSO = ({} | RequestBody);
-export type Query<T> = { [key in (keyof T)]: any };
-
 const methodShouldUseBody = (verb: HttpMethod) => verb === 'POST'
     || verb === 'PUT'
     || verb === 'PATCH'
@@ -22,6 +15,7 @@ const createUrl = <T extends any = any>(ri: RequestInfo[], query?: T) => {
     return url;
 }
 
+
 /**
  * Creates a function with default behavior to wrap the fetch api.
  *
@@ -33,58 +27,38 @@ const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitial
     const r = rootURL || '';
     const i = init || (async <T>(body?: T): Promise<RequestInit> => ({ body: `${body}` }));
     const m = middleware || (async (res: Response) => res) as any;
+
+    // Create the default request bindings.
+    const request = async<TB = any, TR = any>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> => {
+        const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
+        const computedOptions = methodShouldUseBody(method)
+            ? await i(requestInfo, payload)
+            : await i(requestInfo);
+        const requestInit: RequestInit = {
+            ...computedOptions,
+            ...options,
+            headers: {
+                ...computedOptions?.headers,
+                ...options?.headers
+            },
+            method
+        };
+        if (!requestInit.body && payload) {
+            requestInit.body = payload as any;
+        }
+        const result = await fetch(requestInfo, requestInit);
+        return await m(result);
+    }
+
+    // Return all Type binding overloads
     return {
         async requestWithQuery<TReq extends RequestBodyOrPOJSO = any, TRes extends T | T[] = T>(url: RequestInfo, method: HttpMethod, payload?: TReq, options?: RequestInit): Promise<TRes> {
-            const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
-            const computedOptions = methodShouldUseBody(method)
-                ? await i(requestInfo, payload)
-                : await i(requestInfo);
-            const requestInit: RequestInit = {
-                ...computedOptions,
-                ...options,
-                headers: {
-                    ...computedOptions?.headers,
-                    ...options?.headers
-                },
-                method
-            };
-            const result = await fetch(requestInfo, requestInit);
-            return await m(result);
+            return await request(url, method, payload, options);
         },
         async requestWithBody<TB extends T | T[] = any, TR = any>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> {
-            const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
-            const computedOptions = methodShouldUseBody(method)
-                ? await i(requestInfo, payload)
-                : await i(requestInfo);
-            const requestInit: RequestInit = {
-                ...computedOptions,
-                ...options,
-                headers: {
-                    ...computedOptions?.headers,
-                    ...options?.headers
-                },
-                method
-            };
-            const result = await fetch(requestInfo, requestInit);
-            return await m(result);
+            return await request(url, method, payload, options);
         },
-        async request<TB = any, TR = any>(url: RequestInfo, method: HttpMethod, payload?: TB, options?: RequestInit): Promise<TR> {
-            const requestInfo = createUrl([r, url], methodShouldUseBody(method) ? {} : payload).href;
-            const computedOptions = methodShouldUseBody(method)
-                ? await i(requestInfo, payload)
-                : await i(requestInfo);
-            const requestInit: RequestInit = {
-                ...computedOptions,
-                ...options,
-                headers: {
-                    ...computedOptions?.headers,
-                    ...options?.headers
-                },
-                method
-            };
-            const result = await fetch(requestInfo, requestInit);
-            return await m(result);
-        }
+        request
     }
 }
 export default createFetchClient;

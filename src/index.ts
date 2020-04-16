@@ -1,6 +1,6 @@
 export * from './client';
 export { default as tysonClientFactory } from './client'
-import createFactory, { RequestInitializerFactory, ResponseMiddleware } from './client';
+import createFactory from './client';
 
 const createEndpoint = <T = Response>(rootURL: string, init: RequestInitializerFactory, middleware: ResponseMiddleware<T>) => {
     const { requestWithQuery, requestWithBody, request } = createFactory(rootURL, init, middleware);
