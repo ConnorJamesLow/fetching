@@ -1,18 +1,28 @@
-type Query<T> = { [k in (keyof T)]?: T[k] }
+// this is basically just Partial
+// type Query<T> = { [k in (keyof T)]?: T[k] }
+type Limit<T, U extends T = T> = {
+    [K in keyof U]?: U[K]
+} & {
+        [P in Exclude<keyof U, keyof T>]: never
+    };
 type Override<T, R> = Omit<T, keyof R> & R
+type Maybe<T> = T | undefined | null
+/**
+ * Defines a type that includes a `create` method that constructs a new instance of the same type.
+ * The `create` method takes a function with shape `(T) => U` where `T` represents the previous instance's `U`.
+ */
+type Extendable<T, TP> = T & {
+    create<TN>(i: (o: TP) => TN): Extendable<T, TN>
+}
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD'
 type URI = RequestInfo | number | Array<number | RequestInfo>
-type RequestMiddleware<T = any, PRM extends RequestMiddleware = null> = (
-    (config: TypedRequestInit<T>, parentRequestMiddleware?: PRM) => Promise<RequestInit>
-) | null
-type ResponseMiddleware<T = any, PRM extends ResponseMiddleware = null> = (
-    (res: Response, parentResponseMiddleware?: PRM) => Promise<T>
-) | null
+// Prepare middleware
+type Prepare<TInit = any> = <T extends Prepare>(init: Ri<TInit>, parentRequestMiddleware?: T) => Promise<RequestInit>
+// Intercept middleware
+type Intercept<TRes = any> = <T extends Intercept>(res: Response, parentResponseMiddleware?: T) => Promise<TRes>
 
-let t: RequestMiddleware = null;
-
-interface TypedRequestInit<T> extends Override<RequestInit, {
+interface Ri<T = any> extends Override<RequestInit, {
     body?: BodyInit | T | null,
     method?: HttpMethod
 }> {
@@ -26,47 +36,42 @@ interface TypedRequestInit<T> extends Override<RequestInit, {
     payload?: BodyInit | T | null
 }
 
-interface FetchInstanceOptions<TReq = any, TRes = any, TReqM extends RequestMiddleware = any, TResM extends ResponseMiddleware = any> {
+interface FetchInstanceOptions<TReq = any, TRes = any> {
     url?: URI
     method?: HttpMethod
-    prepare?: RequestMiddleware<TReq, TReqM>
-    intercept?: ResponseMiddleware<TRes, TResM>
+    prepare?: Prepare<TReq>
+    intercept?: Intercept<TRes>
 }
 
-interface Fetching<TReq = any, TRes = any, TPrep extends RequestMiddleware = null, TInter extends ResponseMiddleware = null> {
-    <TReq2 = TReq, TRes2 = Response>(url?: URI, init?: TypedRequestInit<TReq2>): Promise<TRes2>
-    get<TReq2 = TReq, TRes2 = TRes>(path?: URI, query?: TReq2): Promise<TRes2>
-    post<TReq2 = TReq, TRes2 = TRes>(path?: URI, body?: TReq2): Promise<TRes2>
-    put<TReq2 = TReq, TRes2 = TRes>(path?: URI, body?: TReq2): Promise<TRes2>
-    patch<TReq2 = TReq, TRes2 = TRes>(path?: URI, body?: TReq2): Promise<TRes2>
-    delete<TRes2 = TRes>(path?: URI): Promise<TRes2>
-    create<TReqN = TReq, TResN = TRes, TReqM extends RequestMiddleware = TPrep, TResM extends ResponseMiddleware = TInter>(options: FetchInstanceOptions<TReq, TRes, TReqM, TResM>): Fetching<TReqN, TResN>
+interface Fetching<TRequest, TResponse> {
+    <TRequestOverride = TRequest, TResultOverride = Response>(url?: URI, init?: Ri<TRequestOverride>): Promise<TResultOverride>
+    get<TRequestOverride = TRequest, TResultOverride = TResponse>(path?: URI, query?: TRequestOverride): Promise<TResultOverride>
+    post<TRequestOverride = TRequest, TResultOverride = TResponse>(path?: URI, body?: TRequestOverride): Promise<TResultOverride>
+    put<TRequestOverride = TRequest, TResultOverride = TResponse>(path?: URI, body?: TRequestOverride): Promise<TResultOverride>
+    patch<TRequestOverride = TRequest, TResultOverride = TResponse>(path?: URI, body?: TRequestOverride): Promise<TResultOverride>
+    delete<TResultOverride = TResponse>(path?: URI): Promise<TResultOverride>
+    create<TReqN = TRequest, TResN = TResponse>(options: FetchInstanceOptions<TReqN, TResN>): Fetching<TReqN, TResN>
 }
 
-const combine = <T, T2 = T>(base: T, extend: T2): T & T2 => ({ ...base, ...extend })
+type Pr<T> = (o: Ri<T>) => Promise<RequestInit>
+type In<T> = (r: Response) => Promise<T>
 
-const a = combine({}, {
-    method: 'get'
+interface Op<A, B> {
+    url?: URI
+    method?: HttpMethod
+    prepare?: Pr<A>
+    intercept?: In<B>
+}
+
+type Fe<T, U, O extends Op<P, I>, P = undefined, I = Response> = Extendable<{
+    <A = T, B = U>(info?: URI, init?: Ri<A>): Promise<B>
+}, O>
+
+const f = {} as Fe<any, Response, {}>
+f.create(o => {
+    return {}
 })
 
-a.method;
-const b = combine({
-    body: ''
-}, a)
-b.method
-
-interface Test<T> {
-    options: T,
-    update<T2>(o: T2): Test<T & T2>
-}
-
-type TestMaker<T> = (o: T) => Test<T>
-
-const create = (fn: (o: RequestInit) => RequestInit) => {
-    return ({
-        create
-    })
-}
 
 
 // Deprecate

@@ -23,7 +23,7 @@ const createUrl = <T extends any = any>(ri: RequestInfo[], query?: T) => {
  * @param init A function that returns initialization options for fetch(). Should be asynchronous.
  * @param middleware A function that runs on the response body every time the client is used to make a request. Should be asynchronous.
  */
-const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitializerFactory, middleware?: ResponseMiddleware<T>) => {
+const createFetchClient = <T = Response>(rootURL?: string, init?: RequestInitializerFactory, middleware?: Intercept<T>) => {
     const r = rootURL || '';
     const i = init || (async <T>(body?: T): Promise<RequestInit> => ({ body: `${body}` }));
     const m = middleware || (async (res: Response) => res) as any;

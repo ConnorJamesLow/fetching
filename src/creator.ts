@@ -15,7 +15,7 @@ const createUrl = <T extends any = any>(ri: URI[], query?: T) => {
 
 const create = (options: FetchInstanceOptions): Fetching<any, any> => {
     // Main request function
-    const fetching: Fetching = (async (theirInfo: URI, theirInit: TypedRequestInit<any>) => {
+    const fetching: Fetching<any, any> = (async (theirInfo: URI, theirInit: Ri) => {
         const { prepare, intercept, method: ourMethod, url: ourInfo } = options;
         const {
             method: theirMethod, body: theirBody, payload: theirPayload, query: theirQuery
@@ -48,7 +48,7 @@ const create = (options: FetchInstanceOptions): Fetching<any, any> => {
             return await intercept(res);
         }
         return res;
-    }) as Fetching;
+    }) as Fetching<any, any>;
 
 
     // HTTP Methods
@@ -91,10 +91,10 @@ const create = (options: FetchInstanceOptions): Fetching<any, any> => {
             intercept: ourIntercept, prepare: ourPrepare
         } = options;
         if (!!theirIntercept) {
-            options.intercept = (res: any) => theirIntercept(res, ourIntercept);
+            options.intercept = res => theirIntercept(res, ourIntercept);
         }
         if (!!theirPrepare) {
-            options.prepare = (config: any) => theirPrepare(config, ourPrepare);
+            options.prepare = config => theirPrepare(config, ourPrepare);
         }
 
         // Create instance
@@ -107,13 +107,21 @@ const create = (options: FetchInstanceOptions): Fetching<any, any> => {
     return fetching;
 }
 
+interface Test {
+    a: number
+    b: string[]
+}
+
 const fetching = create({
     async prepare(init, prev) {
-        return {
-            
-        }
+        return init
     }
 });
 export default fetching;
 
+const f2 = fetching.create<string, Test>({
+    async prepare(init, prev) {
+        return init;
+    }
+})
 
