@@ -70,3 +70,45 @@ const patchTree = endpoint.create.patch<{ [prop: string]: any }, boolean>('')
 const promise = getTrees({ location: 'WA' });
 promise.then(response => console.log(response)); // -> TreeInfo[]
 ```
+
+
+### Configuring
+Use `fetching.create()` to get a new, pre-configured instance of fetching.
+```ts
+const a = fetching.create(() => {
+    return {
+        url: 'https://api.efinitytech.com',
+        async prepare(i) {
+            return {
+                ...i,
+                headers: {
+                    'Authorization': 'whatever I want it to be'
+                },
+            }
+        },
+
+    }
+})
+
+// The create callback receives the configuration of the parent instance.
+const b = a.create(o => {
+    return {
+        url: `${o.url}/content`,
+        async prepare(i) {
+            const previous = await o.prepare(i);
+            return {
+                ...previous,
+                ...i,
+                payload: JSON.stringify(i.payload),
+                headers: {
+                    ...previous.headers,
+                    'Content-Type': 'application/json'
+                }
+            }
+        },
+        async intercept(r: Response) {
+            return r.json();
+        }
+    }
+})
+```
