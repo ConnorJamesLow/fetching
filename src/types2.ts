@@ -4,18 +4,22 @@ type R<T> = RequestInit & {
     body?: T
     payload?: T
     query?: Query<T>
+    method?: HttpMethod
 }
 
-type P<T> = (init: R<T>) => Promise<RequestInit>
+type P<T> = (init: R<T | null>) => Promise<RequestInit>
 type I<T> = (response: any) => Promise<T>
 
 interface O0<A, Z> {
     url?: URI
-    prepare?: P<A>
+    method?: HttpMethod
+    prepare?: P<A | null>
     intercept?: I<Z>
 }
 
 type O<A, Z> = Limit<O0<A, Z>>
+
+type C<T, U, A, Z> = (configure: (o?: T) => U) => F<A, Z, U>
 
 interface F<A, Z, T extends O<A, Z>> {
     (info: URI, init: R<A>): Promise<Z>
